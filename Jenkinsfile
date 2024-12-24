@@ -2,7 +2,9 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "html-app:latest"
+        DOCKER_USERNAME = 'manindersinghdhote'    // Docker Hub username
+        DOCKER_IMAGE = 'html-app'                  // Docker image name
+        DOCKER_TAG = 'latest'                      // Docker tag
     }
 
     stages {
@@ -18,7 +20,7 @@ pipeline {
             steps {
                 script {
                     // Build the Docker image
-                    sh 'docker build -t ${DOCKER_IMAGE} .'
+                    sh 'docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .'
                 }
             }
         }
@@ -26,10 +28,12 @@ pipeline {
         stage('Push Docker Image') {
     steps {
         script {
-            // Authenticate with Docker Hub using credentials stored in Jenkins (docker-creds)
-            docker.withRegistry('https://registry.hub.docker.com', 'docker-creds') {
-                // Push the Docker image to Docker Hub
-                sh 'docker push ${DOCKER_IMAGE}'
+                    // Authenticate with Docker Hub using credentials stored in Jenkins
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker-creds') {
+                        // Tag the image using variables for username and image
+                        sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+                        // Push the image to Docker Hub using variables
+                        sh "docker push ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}"
             }
         }
     }
@@ -40,7 +44,7 @@ pipeline {
             steps {
                 script {
                     // Remove local Docker images to save space
-                    sh 'docker rmi ${DOCKER_IMAGE}'
+                    sh 'docker rmi ${DOCKER_IMAGE}:${DOCKER_TAG}'
                 }
             }
         }
