@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_USERNAME = 'manindersinghdhote'    // Docker Hub username
-        DOCKER_IMAGE = 'html-app'                  // Docker image name
+        DOCKER_IMAGE = 'htmlapp'                  // Docker image name
         DOCKER_TAG = 'latest'                      // Docker tag
     }
 
