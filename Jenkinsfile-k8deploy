@@ -30,7 +30,7 @@ pipeline {
                         kubectl create deployment ${K8_DEPLOYMENT_NAME} --context=${K8_CONTEXT_NAME} --image=${DOCKER_IMAGE}:latest --namespace=${K8_NAMESPACE} || echo "Deployment already exists"
                         
                         # Update the image for the deployment
-                        kubectl set image deployment/${K8_DEPLOYMENT_NAME} ${K8_DEPLOYMENT_NAME}=${DOCKER_IMAGE}:latest --namespace=${K8_NAMESPACE}
+                        kubectl set image deployment/${K8_DEPLOYMENT_NAME} htmlapp=${DOCKER_IMAGE}:latest --namespace=${K8_NAMESPACE}
                         
                         # Wait for the rollout to complete
                         kubectl rollout status deployment/${K8_DEPLOYMENT_NAME} --namespace=${K8_NAMESPACE}
