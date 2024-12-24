@@ -1,0 +1,58 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE = "manindersinghdhote/htmlapp" // Docker image for htmlapp
+        K8_CLUSTER_NAME = "kubernetes"
+        K8_DEPLOYMENT_NAME = "htmlapp-deployment"  // Kubernetes deployment name
+        K8_NAMESPACE = "default"                  // Kubernetes namespace
+        K8_SERVICE_NAME = "htmlapp-service"       // Service name for the exposed app
+        K8_NODE_PORT = 30002                      // Desired NodePort (must be in the range 30000-32767)
+        K8_CONTEXT_NAME = "kubernetes-admin@kubernetes" // Context Name
+    }
+
+    stages {
+        stage('Pull Docker Image from DockerHub') {
+            steps {
+                script {
+                    echo "Pulling Docker image ${DOCKER_IMAGE} from DockerHub"
+                    sh "docker pull ${DOCKER_IMAGE}:latest"
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    withKubeConfig([credentialsId: 'kube-config']) {
+                        sh """
+                        # Deploy the application
+                        kubectl create deployment ${K8_DEPLOYMENT_NAME} --context=${K8_CONTEXT_NAME} --image=${DOCKER_IMAGE}:latest --namespace=${K8_NAMESPACE} || echo "Deployment already exists"
+                        
+                        # Update the image for the deployment
+                        kubectl set image deployment/${K8_DEPLOYMENT_NAME} ${K8_DEPLOYMENT_NAME}=${DOCKER_IMAGE}:latest --namespace=${K8_NAMESPACE}
+                        
+                        # Wait for the rollout to complete
+                        kubectl rollout status deployment/${K8_DEPLOYMENT_NAME} --namespace=${K8_NAMESPACE}
+                        
+                        # Expose the deployment as a NodePort service
+                        kubectl expose deployment ${K8_DEPLOYMENT_NAME} --type=NodePort --name=${K8_SERVICE_NAME} --namespace=${K8_NAMESPACE} --port=80 --target-port=8080 || echo "Service already exists"
+                        
+                        # Patch the NodePort for the service
+                        kubectl patch service ${K8_SERVICE_NAME} --namespace=${K8_NAMESPACE} -p '{"spec": {"ports": [{"port": 80, "targetPort": 8080, "nodePort": ${K8_NODE_PORT}}]}}'
+                        """
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Deployment and service exposure were successful!"
+        }
+        failure {
+            echo "There was a problem with the pipeline execution!"
+        }
+    }
+}
