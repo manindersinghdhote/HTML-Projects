@@ -31,7 +31,7 @@ pipeline {
                     // Authenticate with Docker Hub using credentials stored in Jenkins
                     docker.withRegistry('https://registry.hub.docker.com', 'docker-creds') {
                         // Tag the image using variables for username and image
-                        sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+                       // sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}"
                         // Push the image to Docker Hub using variables
                         sh "docker push ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}"
             }
