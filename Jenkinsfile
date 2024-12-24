@@ -24,17 +24,17 @@ pipeline {
         }
 
         stage('Push Docker Image') {
-            steps {
-                script
-                {
-                                    // Authenticate with Docker Hub (or your private registry)
-                   docker.withRegistry('https://registry.hub.docker.com', 'docker-creds') {
-            app.push("latest")
-                    
-                }
+    steps {
+        script {
+            // Authenticate with Docker Hub using credentials stored in Jenkins (docker-creds)
+            docker.withRegistry('https://registry.hub.docker.com', 'docker-creds') {
+                // Push the Docker image to Docker Hub
+                sh 'docker push ${DOCKER_IMAGE}'
             }
         }
-        }
+    }
+}
+
 
         stage('Clean Up') {
             steps {
