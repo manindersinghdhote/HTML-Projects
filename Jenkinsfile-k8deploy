@@ -36,10 +36,10 @@ pipeline {
                         kubectl rollout status deployment/${K8_DEPLOYMENT_NAME} --namespace=${K8_NAMESPACE}
                         
                         # Expose the deployment as a NodePort service
-                        kubectl expose deployment ${K8_DEPLOYMENT_NAME} --type=NodePort --name=${K8_SERVICE_NAME} --namespace=${K8_NAMESPACE} --port=80 --target-port=8080 || echo "Service already exists"
+                        kubectl expose deployment ${K8_DEPLOYMENT_NAME} --type=NodePort --name=${K8_SERVICE_NAME} --namespace=${K8_NAMESPACE} --port=80 --target-port=80 || echo "Service already exists"
                         
                         # Patch the NodePort for the service
-                        kubectl patch service ${K8_SERVICE_NAME} --namespace=${K8_NAMESPACE} -p '{"spec": {"ports": [{"port": 80, "targetPort": 8080, "nodePort": ${K8_NODE_PORT}}]}}'
+                        kubectl patch service ${K8_SERVICE_NAME} --namespace=${K8_NAMESPACE} -p '{"spec": {"ports": [{"port": 80, "targetPort": 80, "nodePort": ${K8_NODE_PORT}}]}}'
                         """
                     }
                 }
