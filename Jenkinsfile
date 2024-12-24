@@ -19,7 +19,8 @@ pipeline {
             steps {
                 script {
                     // Build the Docker image
-                    sh 'docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .'
+                   // sh 'docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .'
+                    sh 'docker build -t ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG} .'
                 }
             }
         }
@@ -32,7 +33,7 @@ pipeline {
                         // Authenticate with Docker Hub
                         sh 'echo $DOCKER_HUB_TOKEN | docker login -u $DOCKER_USERNAME --password-stdin'
                         // Tag the Docker image
-                        sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+                        //sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}"
                         // Push the Docker image
                         sh "docker push ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}"
                     }
@@ -44,7 +45,7 @@ pipeline {
             steps {
                 script {
                     // Remove local Docker images to save space
-                    sh 'docker rmi ${DOCKER_IMAGE}:${DOCKER_TAG}'
+                    sh 'docker rmi ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}'
                 }
             }
         }
