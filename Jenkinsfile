@@ -25,12 +25,15 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
+                script
+                {
                                     // Authenticate with Docker Hub (or your private registry)
                    docker.withRegistry('https://registry.hub.docker.com', 'docker-creds') {
             app.push("latest")
                     
                 }
             }
+        }
         }
 
         stage('Clean Up') {
